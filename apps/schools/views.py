@@ -14,7 +14,7 @@ from .filters import SchoolFilter
 from .models import School
 from .serializers import SchoolSerializer
 from .pagination import DefaultPagination
-from core.permissions import IsAdmin, IsStaffOrAdmin
+from apps.core.permissions import IsAdmin, IsStaffOrAdmin
 
 
 @extend_schema_view(
