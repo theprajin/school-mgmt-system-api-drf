@@ -59,6 +59,7 @@ paths:
               description: Unspecified request body
       security:
       - jwtAuth: []
+      - {}
       responses:
         '200':
           content:

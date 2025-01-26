@@ -10,7 +10,7 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     OpenApiParameter,
 )
-from .serializers import CustomTokenObtainPairSerializer
+from .serializers import CustomTokenObtainPairSerializer, LogoutSerializer
 
 
 @extend_schema(
@@ -49,38 +49,79 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
+# @extend_schema(
+#     tags=["Authentication"],
+#     summary="Logout user",
+#     description="Invalidate the refresh token to log out the user.",
+#     request={
+#         "type": OpenApiTypes.OBJECT,
+#         "properties": {
+#             "refresh": {
+#                 "type": "string",
+#                 "description": "The refresh token to invalidate.",
+#             }
+#         },
+#         "required": ["refresh"],
+#     },
+#     responses={
+#         200: {"description": "Logout successful."},
+#         400: {"description": "Invalid or missing token."},
+#     },
+# )
+# class LogoutView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request):
+#         refresh_token = request.data.get("refresh")
+#         if not refresh_token:
+#             return Response(
+#                 {"detail": "Refresh token is required."},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+#         try:
+#             token = RefreshToken(refresh_token)
+#             token.blacklist()  # Blacklist the token
+#             return Response({"detail": "Logout successful."}, status=status.HTTP_200_OK)
+#         except Exception:
+#             return Response(
+#                 {"detail": "Token is invalid or expired."},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+
+
 @extend_schema(
     tags=["Authentication"],
     summary="Logout user",
     description="Invalidate the refresh token to log out the user.",
-    request={
-        "type": OpenApiTypes.OBJECT,
-        "properties": {
-            "refresh": {
-                "type": "string",
-                "description": "The refresh token to invalidate.",
-            }
-        },
-        "required": ["refresh"],
-    },
+    request=LogoutSerializer,  # Use the serializer here
     responses={
         200: {"description": "Logout successful."},
         400: {"description": "Invalid or missing token."},
+        415: {"description": "Unsupported media type."},
     },
 )
 class LogoutView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    """
+    Endpoint for logging out users by invalidating their refresh tokens.
+    """
 
     def post(self, request):
-        refresh_token = request.data.get("refresh")
-        if not refresh_token:
+        # Ensure Content-Type is application/json
+        if request.content_type != "application/json":
             return Response(
-                {"detail": "Refresh token is required."},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"detail": "Unsupported media type."},
+                status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             )
+
+        # Use the serializer to validate the request data
+        serializer = LogoutSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        refresh_token = serializer.validated_data["refresh"]
         try:
             token = RefreshToken(refresh_token)
-            token.blacklist()  # Blacklist the token
+            token.blacklist()
             return Response({"detail": "Logout successful."}, status=status.HTTP_200_OK)
         except Exception:
             return Response(
