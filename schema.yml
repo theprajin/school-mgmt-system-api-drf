@@ -1,0 +1,674 @@
+openapi: 3.0.3
+info:
+  title: School Management API
+  version: 1.0.0
+  description: API for managing schools and students with JWT authentication
+paths:
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Authenticate user and return access/refresh tokens
+      summary: Obtain JWT tokens
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+            examples:
+              LoginRequestExample:
+                value:
+                  username: admin
+                  password: admin
+                summary: Login Request Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          description: No response body
+        '401':
+          description: Invalid credentials
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Invalidate the refresh token to log out the user.
+      summary: Logout user
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+          properties:
+            schema:
+              refresh:
+                type: string
+                description: The refresh token to invalidate.
+          required:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Logout successful.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Invalid or missing token.
+          description: ''
+  /api/schools/:
+    get:
+      operationId: schools_list
+      description: Retrieve a list of all schools with optional filters and search
+        capabilities. Supports filtering by name and max student capacity.
+      summary: List all schools
+      parameters:
+      - in: query
+        name: max_students
+        schema:
+          type: integer
+        description: Filter by maximum student capacity
+      - in: query
+        name: name
+        schema:
+          type: string
+        description: Filter schools by name
+      - in: query
+        name: name__icontains
+        schema:
+          type: string
+      - in: query
+        name: name__iendswith
+        schema:
+          type: string
+      - in: query
+        name: name__iexact
+        schema:
+          type: string
+      - in: query
+        name: name__istartswith
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search schools by name
+      tags:
+      - Schools
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSchoolList'
+              examples:
+                SuccessResponse:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                    - count: 2
+                      next: null
+                      previous: null
+                      results:
+                      - id: 1
+                        name: Springfield High
+                        max_students: 500
+                  summary: Success Response
+          description: ''
+    post:
+      operationId: schools_create
+      description: Add a new school by providing its name and maximum student capacity.
+        Only admins are allowed to perform this action.
+      summary: Create a new school
+      tags:
+      - Schools
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolRequest'
+            examples:
+              CreateSchoolRequest:
+                value:
+                  name: New Academy
+                  max_students: 200
+                summary: Create School Request
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/School'
+          description: ''
+        '403':
+          description: Admin access required
+  /api/schools/{id}/:
+    get:
+      operationId: schools_retrieve
+      description: Fetch details of a specific school by its ID. Returns the school's
+        name and maximum student capacity.
+      summary: Retrieve school details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this school.
+        required: true
+      tags:
+      - Schools
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/School'
+          description: ''
+        '404':
+          description: School not found
+    put:
+      operationId: schools_update
+      description: Update the details of an existing school, such as its name or maximum
+        student capacity. Only admins are allowed to perform this action.
+      summary: Update a school
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this school.
+        required: true
+      tags:
+      - Schools
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolRequest'
+            examples:
+              UpdateRequest:
+                value:
+                  name: Updated School Name
+                  max_students: 300
+                summary: Update Request
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/School'
+              examples:
+                UpdateRequest:
+                  value:
+                    name: Updated School Name
+                    max_students: 300
+                  summary: Update Request
+          description: ''
+    delete:
+      operationId: schools_destroy
+      description: Delete a school by its ID. Schools with enrolled students cannot
+        be deleted. Only admins are allowed to perform this action.
+      summary: Delete a school
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this school.
+        required: true
+      tags:
+      - Schools
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: School deleted successfully
+        '400':
+          description: School has students
+        '403':
+          description: Admin access required
+  /api/schools/{school_pk}/students/:
+    get:
+      operationId: schools_students_list
+      description: Retrieve a paginated list of all students associated with a specific
+        school. You can filter students by their age or order them by ID, first name,
+        or last name.
+      summary: List all students in a school
+      parameters:
+      - in: query
+        name: age
+        schema:
+          type: integer
+        description: Filter students by exact age
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Order students by field (id, first_name, last_name)
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: school_pk
+        schema:
+          type: integer
+        description: School ID to filter students
+        required: true
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Students
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentList'
+              examples:
+                SuccessExample:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                    - count: 2
+                      next: null
+                      previous: null
+                      results:
+                      - id: 1
+                        first_name: John
+                        last_name: Doe
+                        age: 15
+                        school: 1
+                  summary: Success Example
+          description: ''
+    post:
+      operationId: schools_students_create
+      description: Add a new student to a specific school by providing their details
+        (first name, last name, and age). The school must have available capacity.
+      summary: Create a student in a school
+      parameters:
+      - in: path
+        name: school_pk
+        schema:
+          type: integer
+        description: School ID to create student in
+        required: true
+      tags:
+      - Students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+            examples:
+              CreateStudentRequest:
+                value:
+                  first_name: Jane
+                  last_name: Smith
+                  age: 16
+                summary: Create Student Request
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+  /api/students/{id}/:
+    get:
+      operationId: students_retrieve
+      description: Fetch the details of a specific student by their ID.
+      summary: Retrieve a student's details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - Students
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+        '404':
+          description: Student not found
+    put:
+      operationId: students_update
+      description: Update all the details of a specific student by providing their
+        full details.
+      summary: Update a student's details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - Students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+            examples:
+              UpdateRequest:
+                value:
+                  first_name: John
+                  last_name: Smith
+                  age: 16
+                summary: Update Request
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+    patch:
+      operationId: students_partial_update
+      description: Update specific fields of a student's details, such as their age
+        or last name.
+      summary: Partially update a student's details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - Students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+            examples:
+              PartialUpdateRequest:
+                value:
+                  age: 16
+                summary: Partial Update Request
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+    delete:
+      operationId: students_destroy
+      description: Delete a specific student by their ID.
+      summary: Delete a student
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - Students
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Student deleted successfully
+        '403':
+          description: Permission denied
+components:
+  schemas:
+    CustomTokenObtainPairRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    PaginatedSchoolList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/School'
+    PaginatedStudentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+    PatchedStudentRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        age:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    School:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        max_students:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        current_students:
+          type: string
+          readOnly: true
+      required:
+      - current_students
+      - id
+      - max_students
+      - name
+    SchoolRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        max_students:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - max_students
+      - name
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 255
+        last_name:
+          type: string
+          maxLength: 255
+        age:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        school_id:
+          type: integer
+          readOnly: true
+      required:
+      - age
+      - first_name
+      - id
+      - last_name
+      - school_id
+    StudentRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        age:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - age
+      - first_name
+      - last_name
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
