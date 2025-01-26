@@ -46,10 +46,10 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "debug_toolbar",
     # local apps
-    "accounts",
-    "schools",
-    "students",
-    "core",
+    "apps.accounts",
+    "apps.schools",
+    "apps.students",
+    "apps.core",
 ]
 
 MIDDLEWARE = [
