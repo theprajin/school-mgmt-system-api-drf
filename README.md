@@ -42,49 +42,68 @@ A Django REST Framework (DRF) based API for managing schools, students, and user
 - Virtual Environment (recommended: `venv`)
 
 ### **1. Clone the Repository**
--git clone https://github.com/yourusername/school-management-api.git
--cd school-management-api
+```
+git clone https://github.com/yourusername/school-management-api.git
+cd school-management-api
+```
 
 ### **2. Create and Activate a Virtual Environment**
 
 - #### For Linux/Mac:
-- python -m venv venv
-- source venv/bin/activate
+```
+python -m venv venv
+source venv/bin/activate
+```
 
 - #### For Windows:
-- python -m venv venv
-- venv\Scripts\activate
+```
+python -m venv venv
+venv\Scripts\activate
+```
 
 ### **3. Install Dependencies**
 - Base Dependencies:
-- pip install -r requirements/base.txt
+```
+pip install -r requirements/base.txt
+```
 
 - Development Dependencies:
-- pip install -r requirements/dev.txt
+```
+pip install -r requirements/dev.txt
+```
 
 - Production Dependencies:
-- pip install -r requirements/prod.txt
+```
+pip install -r requirements/prod.txt
+```
 
 ## Environment Setup
 ### **1. Set the Django Settings Module**
 - For development:
-    - export DJANGO_SETTINGS_MODULE=config.settings.dev
+```
+export DJANGO_SETTINGS_MODULE=config.settings.dev
+```
 
 - For production:
-    - export DJANGO_SETTINGS_MODULE=config.settings.prod
+```
+export DJANGO_SETTINGS_MODULE=config.settings.prod
+```
 
 ### **2. Apply Migrations**
-- python manage.py migrate
+```
+python manage.py migrate
+```
 
 ### **3. Create a Superuser**
-- python manage.py createsuperuser
+```
+python manage.py createsuperuser
+```
 
 ### **Run the Server**
 - Development:
-    - python manage.py runserver
-
-- Production (using gunicorn):
-    - gunicorn config.wsgi:application --bind 0.0.0.0:8000
+```
+python manage.py runserver
+```
 
 
 ## **API Endpoints**
