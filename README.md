@@ -79,7 +79,7 @@ pip install -r requirements/prod.txt
 
 ## Environment Setup
 ### **1. Set the Django Settings Module**
-- For development:
+### For development:
 - ##### On Linux/Mac
 ```
 export DJANGO_SETTINGS_MODULE=config.settings.dev
@@ -91,7 +91,7 @@ set DJANGO_SETTINGS_MODULE=config.settings.dev
 
 ```
 
-- For production:
+### For production:
 - ##### On Linux/Mac
 ```
 export DJANGO_SETTINGS_MODULE=config.settings.prod
