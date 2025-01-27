@@ -25,4 +25,5 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="docs",
     ),
+    path("silk/", include("silk.urls", namespace="silk")),
 ] + debug_toolbar_urls()
