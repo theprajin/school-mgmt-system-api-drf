@@ -80,13 +80,27 @@ pip install -r requirements/prod.txt
 ## Environment Setup
 ### **1. Set the Django Settings Module**
 - For development:
+- ##### On Linux/Mac
 ```
 export DJANGO_SETTINGS_MODULE=config.settings.dev
 ```
 
+- #### On Windows
+```
+set DJANGO_SETTINGS_MODULE=config.settings.dev
+
+```
+
 - For production:
+- ##### On Linux/Mac
 ```
 export DJANGO_SETTINGS_MODULE=config.settings.prod
+```
+
+- #### On Windows
+```
+set DJANGO_SETTINGS_MODULE=config.settings.prod
+
 ```
 
 ### **2. Apply Migrations**
