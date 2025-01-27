@@ -42,14 +42,12 @@ A Django REST Framework (DRF) based API for managing schools, students, and user
 - Virtual Environment (recommended: `venv`)
 
 ### **1. Clone the Repository**
-```bash
 git clone https://github.com/yourusername/school-management-api.git
 cd school-management-api
 
 ### **2. Create and Activate a Virtual Environment**
 
 #### For Linux/Mac:
-```bash
 python -m venv venv
 source venv/bin/activate
 
