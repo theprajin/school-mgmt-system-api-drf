@@ -54,12 +54,16 @@ cd school-management-api
 - #### For Linux/Mac:
 ```
 python -m venv venv
+```
+```
 source venv/bin/activate
 ```
 
 - #### For Windows:
 ```
 python -m venv venv
+```
+```
 venv\Scripts\activate
 ```
 
