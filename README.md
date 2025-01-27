@@ -123,6 +123,7 @@ python manage.py runserver
 
 ### **To Test API on Browser**
 Open the following URL in your browser (running locally):
+
 [http://localhost:8000/api/schema/docs/](http://localhost:8000/api/schema/docs/)
 
 OR
