@@ -11,9 +11,13 @@ def api_client():
 
 
 @pytest.fixture
-def authenticate(api_client):
-    def do_authenticate(is_staff=False):
-        return api_client.force_authenticate(user=User(is_staff=is_staff))
+def authenticate(api_client, create_user):
+    def do_authenticate(is_staff=False, **user_data):
+        # Create a user with the given data
+        user = create_user(is_staff=is_staff, **user_data)
+        # Force authentication
+        api_client.force_authenticate(user=user)
+        return user
 
     return do_authenticate
 
@@ -29,16 +33,20 @@ def create_user(db):
 @pytest.fixture
 def login_user(api_client):
     def do_login_user(credentials):
-        return api_client.post("/api/auth/login/", credentials)
+        # Make sure the Content-Type header is set for login
+        return api_client.post("/api/auth/login/", credentials, format="json")
 
     return do_login_user
 
 
 @pytest.fixture
-def logout_user(api_client, authenticate):
+def logout_user(api_client):
     def do_logout_user(refresh_token):
-        # Authenticate the user before making the request
-        authenticate(is_staff=True)  # Assuming only staff users can log out
-        return api_client.post("/api/auth/logout/", {"refresh": refresh_token})
+        # Ensure the Content-Type header is set for logout
+        return api_client.post(
+            "/api/auth/logout/",
+            {"refresh": refresh_token},
+            format="json",
+        )
 
     return do_logout_user

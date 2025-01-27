@@ -40,9 +40,10 @@ class TestAuthentication:
             RefreshToken(refresh_token).check_blacklist()
 
     def test_logout_invalid_token(self, logout_user, authenticate):
+        # Authenticate a user before calling the logout endpoint
+        authenticate(username="admin", password="admin", role="admin")
 
-        # Authenticate the user before calling the logout endpoint
-        authenticate(is_staff=True)
+        # Call logout with an invalid refresh token
         response = logout_user("invalidtoken")
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
