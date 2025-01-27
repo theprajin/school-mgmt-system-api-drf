@@ -121,6 +121,16 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+### **To Test API on Browser**
+Open the following URL in your browser (running locally):
+[http://localhost:8000/api/schema/docs/](http://localhost:8000/api/schema/docs/)
+
+OR
+[http://localhost:8000/api/schema/redoc/](http://localhost:8000/api/schema/redoc/)
+
+
+
+
 
 ## **API Endpoints**
 
