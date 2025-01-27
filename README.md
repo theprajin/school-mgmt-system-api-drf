@@ -116,4 +116,6 @@ A Django REST Framework (DRF) based API for managing schools, students, and user
 
 ### **Testing**
 - Run tests using pytest:
-    - pytest
+```
+pytest
+```
