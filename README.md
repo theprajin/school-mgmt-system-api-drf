@@ -47,6 +47,8 @@ git clone https://github.com/yourusername/school-management-api.git
 cd school-management-api
 ```
 
+**Note:** You have to do some extra setup for the production environment according to your specific deployment needs and infrastructure requirements.
+
 ### **2. Create and Activate a Virtual Environment**
 
 - #### For Linux/Mac:
